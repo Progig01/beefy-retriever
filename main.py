@@ -5,14 +5,13 @@
 # Import Libraries
 from bs4 import BeautifulSoup
 import requests
-import re
 import json
 
 # User Config
 Wallet_Address = '0xE776beC7c0B8c4Cc8E82688fD875b75c6E331733'
 
-# Function Definitions
-# Scrape TheTopDefi for holdings total and net yield
+
+#  Scrape TheTopDefi for holdings total and net yield
 def getTopDefi():
     # Get the page and create a Beautiful soup object of it
     URL = "https://thetopdefi.com/dashboard/views?v=2&chain=all&walletAddress=" + Wallet_Address
@@ -28,7 +27,7 @@ def getTopDefi():
     return data  # Yeet
 
 
-# Connect to the Beefy Finance API for vault rates, tvls, etc
+#   Connect to the Beefy Finance API for vault rates, tvls, etc
 def getBeefy(vault):
     URL = "http://api.beefy.finance/apy/breakdown"
     page = requests.get(URL)
@@ -37,7 +36,7 @@ def getBeefy(vault):
     return data[vault]
 
 
-# Take a snapshot of our current investment state
+#   Take a snapshot of our current investment state
 def takeSnapshot():
     snapshot = getTopDefi()  # Get info on current investments from TheTopDefi
     for chain in snapshot:  # For every blockchain we're invested in...
@@ -52,7 +51,7 @@ def takeSnapshot():
     return snapshot
 
 
-# Make a function for creating an easily readable view of a given vault
+#   Make a function for creating an easily readable view of a given vault
 def getVaultInfo(snapshot, chain, vault):
     topDefi = {}
     beefyFi = {}
@@ -109,7 +108,7 @@ def getVaultInfo(snapshot, chain, vault):
     return rVault
 
 
-# Make a function for getting the names of all vaults on a chain
+#   Make a function for getting the names of all vaults on a chain
 def getVaults(snapshot, chain):
     vaults = []
 
@@ -120,20 +119,37 @@ def getVaults(snapshot, chain):
     return vaults
 
 
-# Make a function for getting the names of all chains on a snapshot
+#   Make a function for getting the names of all chains on a snapshot
 def getChains(snapshot):
     chains = []
     for chain in snapshot:
         chains.append(chain['chain'])
     return chains
 
+
+#   Build a structured portfolio from only a snapshot
+def buildPortfolio(snapshot):
+    portfolio = {}
+
+    # Make an empty dictionary to organize chains into
+    portfolio.update({"chains": {}})
+    # Make an empty nested dictionary for each chain bearing its name
+    for chain in getChains(snapshot):
+        portfolio['chains'].update({chain: {}})  # Doing that ^
+        # Make an empty nested dict to organize vaults into
+        portfolio['chains'][chain].update({"vaults": {}})
+        # Get all the vault names for the chain provided
+        for vault in getVaults(snapshot, chain):
+            # Make an empty nested dict for each vault bearing its name and populate it with data
+            portfolio['chains'][chain]['vaults'].update(
+                {vault: getVaultInfo(snapshot, chain, vault)})
+
+    return portfolio
+
+
 # ---------------------------------------------------------------------------------------
 # ------------------ S C R A T C H P A D ------------------------------------------------
 # ---------------------------------------------------------------------------------------
 snap = takeSnapshot()
-e = getVaultInfo(snap, 'fantom', 'ripae-pftm-ftm')
-f = getVaults(snap, 'fantom')
-g = getChains(snap)
-# print(e)
-print(f)
-print(g)
+h = buildPortfolio(snap)
+print(h)
