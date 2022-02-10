@@ -11,7 +11,7 @@ import json
 # User Config
 Wallet_Address = '0xE776beC7c0B8c4Cc8E82688fD875b75c6E331733'
 
-
+# Function Definitions
 # Scrape TheTopDefi for holdings total and net yield
 def getTopDefi():
     # Get the page and create a Beautiful soup object of it
@@ -24,13 +24,6 @@ def getTopDefi():
     data = json.loads(script.string)
     # Make accessing data a little easier
     data = data['props']['pageProps']['data']
-    # Make a list of all the chains we're in
-    data.update({"all_chains": []})
-    i = 0
-    while i < len(data):
-        # If you ever have a duplicate wallet issue, here's a possible cause
-        data['all_chains'].append(data[i]['chain'])
-        i += 1
 
     return data  # Yeet
 
@@ -118,8 +111,29 @@ def getVaultInfo(snapshot, chain, vault):
 
 # Make a function for getting the names of all vaults on a chain
 def getVaults(snapshot, chain):
-    #
+    vaults = []
+
+    for chain in snapshot:
+        for vault in chain['gridView']:
+            vaults.append(vault['vid'])
+
+    return vaults
 
 
-e = getVaultInfo(takeSnapshot(), 'fantom', 'ripae-pftm-ftm')
+# Make a function for getting the names of all chains on a snapshot
+def getChains(snapshot):
+    chains = []
+    for chain in snapshot:
+        chains.append(chain['chain'])
+    return chains
+
+# ---------------------------------------------------------------------------------------
+# ------------------ S C R A T C H P A D ------------------------------------------------
+# ---------------------------------------------------------------------------------------
+snap = takeSnapshot()
+e = getVaultInfo(snap, 'fantom', 'ripae-pftm-ftm')
+f = getVaults(snap, 'fantom')
+g = getChains(snap)
 # print(e)
+print(f)
+print(g)
