@@ -1,0 +1,12 @@
+# Fill out this config, then remove the .OPENME extension before running the program!
+
+sql = {
+    'host': '',
+    'user': '',
+    'passw': '',
+    'db': ''
+}
+
+user = {
+    'wallet_address': ''
+}
